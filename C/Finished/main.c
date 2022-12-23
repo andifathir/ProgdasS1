@@ -3,25 +3,9 @@
 #include <conio.h>
 #include <stdbool.h>
 
-struct others
-{
-  int i, dstock;
-};
-
-struct martabak
-{
-  float rayam, rsapi, sayam, ssapi, mix;
-};
-
-struct terangbulan
-{
-  float cokelat, keju, kacang, cokeju, cokacang;
-};
-
-struct totall
-{
-  int h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, hargatotal, bayar, kembalian;
-};
+/*--------------> IMPORTANT MUST READ <------------------
+ You need to register first with username:andi password:andi123 (You can change this in Line:104) to access inventory.
+ To access the cashier program you can register with any username or password.*/
 
 struct product
 {
@@ -37,11 +21,6 @@ struct product
 struct product prod[30]; // the maximum array elements.
 int count = 0;           // this will be incremented if there is a new product and this is the
 FILE *f;                 // for the file pointer
-
-struct others other;
-struct martabak mrtbk;
-struct terangbulan trgbln;
-struct totall total;
 
 int main();
 void afterReg();
@@ -64,7 +43,7 @@ int writefile();
 
 void Title(void)
 {
-  printf("login system\n");
+  printf("Login System\n");
   printf("==============\n\n");
 }
 
@@ -74,10 +53,10 @@ int main()
   system("Color A");
   Title();
   int choose1;
-  printf("1. LOGIN\n");
-  printf("2. REGISTRATION\n");
+  printf("1. Login\n");
+  printf("2. Registration\n");
   printf("3. Close Program\n");
-  printf("Enter option: ");
+  printf("Enter Option: ");
   scanf("%d", &choose1);
   switch (choose1)
   {
@@ -106,10 +85,10 @@ bool Login_system()
   printf("------------------------\n");
   printf("Username: ");
   fflush(stdin);
-  gets(username1);
+  scanf("%s", username1);
   printf("Password: ");
   fflush(stdin);
-  gets(password1);
+  scanf("%s", password1);
 
   char user1[20];
   strcpy(user1, username1);
@@ -122,7 +101,7 @@ bool Login_system()
 
   if (strcmp(username1, us) == 0 && strcmp(password1, pa) == 0)
   {
-    if (strcmp(username1, "andi") == 0 && strcmp(password1, "andi123") == 0)
+    if (strcmp(username1, "andi") == 0 && strcmp(password1, "andi123") == 0) //Account that can access inventory you can change it if you want
     {
       system("cls");
       inv();
@@ -144,7 +123,7 @@ void Login(void)
   {
     system("cls");
     Title();
-    printf("login successful...\n\n");
+    printf("Login successful...\n\n");
     getch();
     master();
   }
@@ -152,11 +131,11 @@ void Login(void)
   {
     system("cls");
     Title();
-    printf("invalid password\n\n");
-    printf("1. try again\n");
-    printf("2. main menu\n");
-    printf("3. close aplication");
-    printf("enter option: ");
+    printf("Invalid Password\n\n");
+    printf("1. Try again\n");
+    printf("2. Main menu\n");
+    printf("3. Close aplication\n");
+    printf("Enter option: ");
     int n2;
     scanf("%d", &n2);
     switch (n2)
@@ -180,7 +159,7 @@ void Registration(void)
   system("cls");
   Title();
   char username[20], password[20];
-  printf("welcome to registration page\n");
+  printf("Welcome To Registration Page\n");
   printf("==============================\n");
   printf("Username: ");
   fflush(stdin);
@@ -225,9 +204,9 @@ void afterReg(void)
     break;
   default:
     Title();
-    printf("invalide choice!");
-    printf("for choice again enter 1 or enter 0 for main menu.\n");
-    printf("enter [1/0]: ");
+    printf("Invalide Choice!");
+    printf("For choice again enter 1 or enter 0 for main menu.\n");
+    printf("Enter [1/0]: ");
     int n1;
     scanf("%d", &n1);
     switch (n1)
@@ -245,11 +224,11 @@ void afterReg(void)
 
 void master()
 {
+  system("cls");
   int i;
-
   count = readFile(); // the output is how many products inside the file.
   if (count < 0)
-    puts("cannot open file");
+    puts("Cannot open file!");
   printf(" \t\t\t\t *****  INVENTORY *****\n");
   printf("-----------------------------------------------------------------------------------------------------\n");
   printf("S.N.|    NAME     |  PROD ID  |  QUANTITY | PROD SOLD |       PRICE       |    DISCOUNT    |  SALES |\n");
@@ -344,22 +323,24 @@ void dispHsale()
 
 void purchaseprod()
 { // function for purchasing a product
-  int quant, i, total, x, pay, change;
+  int i, total, x, pay, change, totall, quant;
   char id[10];
-  int z = false;
+  int z = 0;
+back:
   count = readFile();
-  printf("Sell an Item ");
+  printf("Select item");
   printf("\nProduct ID: ");
   fflush(stdin);
-  gets(id);
+  scanf("%s", id);
   for (i = 0; i < count; i++)
   {
     if (strcmp(id, prod[i].id) == 0) // if the id that the user want to find and the data id that has been saved at file is matched.
     {
-      z = true;
+      z = 1;
       printf("\nItem found! Containing: \n"); //...then display the match
       printf("\nProduct name: %s", prod[i].name);
-      printf("\nPrice: %.2lf\n\n", prod[i].price);
+      printf("\nPrice: %.2lf", prod[i].price);
+      printf("\nDiscount: %d%%\n\n", prod[i].discount);
 
       printf("Enter the quantity you want to buy  : ");
       fflush(stdin);
@@ -370,48 +351,55 @@ void purchaseprod()
         break; // break and back to the choices.
       }
 
+      total = prod[i].price - (quant * (prod[i].price * (prod[i].discount / 100.0)));
       float tempSales = prod[i].sales; // will be executed if the quantity is greater than the users selected quantity.
       prod[i].numSold += quant;
       prod[i].quantity -= quant;
       prod[i].sales = quant * (prod[i].price * (prod[i].discount / 100.0));
       prod[i].sales += tempSales;
-      total = prod[i].price * quant;
-    }        
+      writefile();
+    }
   }
-  if (z == false)
-  { // if the product id is not available.
 
+  if (z == 0)
+  { // if the product id is not available.
     printf("Cant find the product id: %s.", id);
   }
+
+  totall += total;
+  printf("Your total is %d\n", totall);
+
   printf("Do you want too buy more: ");
   scanf("%d", &x);
   switch (x)
   {
-    case 1:
-    writefile();
-    purchaseprod();
+  case 1:
+  
+    goto back;
     break;
 
-    case 2:
-    payment:
-    printf("Your total is %d\n", total);
-    printf("Enter your total payment\n" );
+  case 2:
+  payment:
+    printf("\n\nYour total is %d\n", totall);
+    printf("Enter your total payment: ");
     scanf("%d", &pay);
 
-    if (pay >= total)
+    if (pay >= totall)
     {
-      change = pay - total;
-      printf("Your change is %d", change);
+      change = pay - totall;
+      printf("\nYour change is %d", change);
+      getch();
+      master();
     }
-    else if (pay < total)
+    else if (pay < totall)
     {
-      printf("Your money is not enough...");
+      printf("\nYour money is not enough...");
       getch();
       system("cls");
       goto payment;
     }
     break;
-  }  
+  }
 }
 
 void deleteprod()
@@ -420,9 +408,9 @@ void deleteprod()
   char id[10];
   int i, j;
   int z = false;
-  printf("Enter the id that you want to be delete : "); // user's input for deleting.
+  printf("Enter the id that you want to delete : "); // user's input for deleting.
   fflush(stdin);
-  gets(id);
+  scanf("%s", id);
 
   for (i = 0; i < count; i++)
   { // loop to finding the user's input
@@ -457,10 +445,13 @@ void addProd()
   {
     printf("\nProduct ID Number: ");
     fflush(stdin);
-    gets(prod[count].id);
+    /* gets(prod[count].id); */
+    scanf("%s", prod[count].id);
   }
   printf("Product Name: ");
-  gets(prod[count].name);
+  /* gets(prod[count].name); */
+  fflush(stdin);
+  scanf("%s", prod[count].name);
   printf("Quantity of the product: ");
   scanf("%d", &prod[count].quantity);
   printf("Price of the product: ");
@@ -477,7 +468,8 @@ int IDChecker(int i, int j) // checking the input id
   count = readFile();
   printf("Product ID: ");
   fflush(stdin);
-  gets(prod[count].id);
+  /* gets(prod[count].id); */
+  scanf("%s", prod[count].id);
   if (strcmp(prod[i].id, prod[j].id) == 0)
   {
     printf("ID number is already taken!");
@@ -494,7 +486,8 @@ void editProd()
   printf("EDIT A PRODUCT!");
   printf("\nEnter the id of the product that you want to edit: "); // users input for what data will be change
   fflush(stdin);
-  gets(id);
+  /* gets(id); */
+  scanf("%s", id);
   test = checkID(id);
   if (test == 0)
   {
@@ -526,12 +519,14 @@ void editProd()
 
             printf("Enter new ID: ");
             fflush(stdin);
-            gets(prod[i].id);
+            /* gets(prod[i].id); */
+            scanf("%s", prod[i].id);
             break;
           case 2:
             printf("Enter new Name: ");
             fflush(stdin);
-            gets(prod[i].name);
+            /* gets(prod[i].name); */
+            scanf("%d", prod[i].name);
             break;
           case 3:
             printf("Enter Quantity: ");
