@@ -3,10 +3,6 @@
 #include <conio.h>
 #include <stdbool.h>
 
-/*--------------> IMPORTANT MUST READ <------------------
- You need to register first with username:andi password:andi123 (You can change this in Line:104) to access inventory.
- To access the cashier program you can register with any username or password.*/
-
 struct product
 {
   char id[10];   // product code/no.
@@ -50,7 +46,7 @@ void Title(void)
 int main()
 {
 
-  system("Color A");
+  /* system("Color A"); */
   Title();
   int choose1;
   printf("1. Login\n");
@@ -75,10 +71,10 @@ int main()
 bool Login_system()
 {
   char username1[20];
-  int u = strlen(username1);
+  
   char us[20];
   char password1[20];
-  int p = strlen(password1);
+  
   char pa[20];
   Title();
   printf("Welcome to login page!\n");
@@ -115,11 +111,11 @@ bool Login_system()
   fclose(pfile);
 }
 
-void Login(void)
+void Login()
 {
   system("cls");
   bool condition = Login_system();
-  if (condition)
+  if (condition == true)
   {
     system("cls");
     Title();
@@ -131,7 +127,7 @@ void Login(void)
   {
     system("cls");
     Title();
-    printf("Invalid Password\n\n");
+    printf("Invalid Username or Password\n\n");
     printf("1. Try again\n");
     printf("2. Main menu\n");
     printf("3. Close aplication\n");
@@ -154,7 +150,7 @@ void Login(void)
   }
 }
 
-void Registration(void)
+void Registration()
 {
   system("cls");
   Title();
@@ -167,7 +163,6 @@ void Registration(void)
   printf("Password: ");
   fflush(stdin);
   scanf("%s", &password);
-  int n = strlen(username);
   char uuu[20];
   strcpy(uuu, username);
 
@@ -179,12 +174,12 @@ void Registration(void)
 
   system("cls");
   Title();
-  printf("Registration sucessfully...");
+  printf("Registration sucessfull...");
   getch();
   afterReg();
 }
 
-void afterReg(void)
+void afterReg()
 {
   system("cls");
   Title();
@@ -245,7 +240,7 @@ void master()
 int writefile() // write file function
 {
   int i;
-  f = fopen("inventory.txt", "w"); // ayaw i append; change from f = fopen("inventory.txt", "a");
+  f = fopen("inventory.txt", "w"); //append; change from f = fopen("inventory.txt", "a");
   if (f == NULL)
     return -1;
   fprintf(f, "%d\n", count);
@@ -265,6 +260,7 @@ int writefile() // write file function
   fclose(f);
   return 0;
 }
+
 int readFile() // read file function
 {
   int n = 0;
@@ -290,7 +286,7 @@ int readFile() // read file function
 }
 
 void disZeroQuant()
-{ // for the switch number 7= calling all the product id with zero quantity.
+{ //calling all the product id with zero quantity.
   int i;
 
   count = readFile(); // call the read function
@@ -304,34 +300,42 @@ void disZeroQuant()
   }
   writefile();
 }
+
 void dispHsale()
 { // to display the highest sale function
   int high, i;
   high = prod[0].numSold;     // getting the first element of the array that has been sold
+  printf("%d", count);
   for (i = 0; i < count; i++) // loop for the num item sold.
   {
     if (prod[i].numSold > high) // if the element containts the highest sold product.
+    {
       high = prod[i].numSold;   // it will pass on the high variable.
+    }
   }
-  printf("\nThe Highest Product Sale is: \n");
+  printf("High: %d", high);
+  printf("\nThe Highest Product Sale \n");
   for (i = 0; i < count; i++) // loop to search the highest sold product.
   {
     if (prod[i].numSold == high) // printing the highest product.
+    {
       printf("Name of the product: %s \nProduct Id: %s \nQuantity left: %d \nNumber of product sold: %d \nPrice of the product: %.2f \nDiscount of the product: %d %% \nTotal Sales: %.2lf\n", prod[i].name, prod[i].id, prod[i].quantity, prod[i].numSold, prod[i].price, prod[i].discount, prod[i].sales);
+    }
   }
 }
 
 void purchaseprod()
 { // function for purchasing a product
-  int i, total, x, pay, change, totall, quant;
+  back:
+  int i, total, pay, change, totall, quant;
   char id[10];
+  char x;
   int z = 0;
-back:
   count = readFile();
-  printf("Select item");
+  printf("\nSelect item");
   printf("\nProduct ID: ");
-  fflush(stdin);
-  scanf("%s", id);
+  getchar();
+  gets(id);
   for (i = 0; i < count; i++)
   {
     if (strcmp(id, prod[i].id) == 0) // if the id that the user want to find and the data id that has been saved at file is matched.
@@ -351,7 +355,7 @@ back:
         break; // break and back to the choices.
       }
 
-      total = prod[i].price - (quant * (prod[i].price * (prod[i].discount / 100.0)));
+      total = prod[i].price * quant - (quant * (prod[i].price * (prod[i].discount / 100.0)));
       float tempSales = prod[i].sales; // will be executed if the quantity is greater than the users selected quantity.
       prod[i].numSold += quant;
       prod[i].quantity -= quant;
@@ -363,22 +367,23 @@ back:
 
   if (z == 0)
   { // if the product id is not available.
-    printf("Cant find the product id: %s.", id);
+    printf("Cant find the product id: %s.\n", id);
   }
 
   totall += total;
   printf("Your total is %d\n", totall);
 
-  printf("Do you want too buy more: ");
-  scanf("%d", &x);
+  printf("Do you want too buy more [y/n]: ");
+  scanf(" %c", &x);
   switch (x)
   {
-  case 1:
-  
+  case 'y':
+  case 'Y':
     goto back;
     break;
 
-  case 2:
+  case 'n':
+  case 'N':  
   payment:
     printf("\n\nYour total is %d\n", totall);
     printf("Enter your total payment: ");
@@ -407,14 +412,15 @@ void deleteprod()
   count = readFile();
   char id[10];
   int i, j;
-  int z = false;
+  int z = 0;
   printf("Enter the id that you want to delete : "); // user's input for deleting.
-  fflush(stdin);
-  scanf("%s", id);
+  getchar();
+  gets(id);
+  /* scanf("%s", id); */
 
   for (i = 0; i < count; i++)
-  { // loop to finding the user's input
-    z = true;
+  { // loop to find the user's input
+    z = 1;
     if (strcmp(prod[i].id, id) == 0)
     {                                   // if the user's input matched the data
       for (j = i; j < (count - 1); j++) // it will erase the selected data.
@@ -424,7 +430,8 @@ void deleteprod()
       count--;
     }
   }
-  if (z == false)
+
+  if (z == 0)
   { // will be executed if the product id is not available.
     printf("Cant find product id: %s .", id);
   }
@@ -444,14 +451,16 @@ void addProd()
   else
   {
     printf("\nProduct ID Number: ");
-    fflush(stdin);
-    /* gets(prod[count].id); */
-    scanf("%s", prod[count].id);
+    getchar();
+    gets(prod[count].id);
+    /* scanf("%s", prod[count].id); */
   }
+  
   printf("Product Name: ");
-  /* gets(prod[count].name); */
-  fflush(stdin);
-  scanf("%s", prod[count].name);
+  getchar();
+  gets(prod[count].name);
+  
+  /* scanf("%s", prod[count].name); */
   printf("Quantity of the product: ");
   scanf("%d", &prod[count].quantity);
   printf("Price of the product: ");
@@ -468,8 +477,9 @@ int IDChecker(int i, int j) // checking the input id
   count = readFile();
   printf("Product ID: ");
   fflush(stdin);
-  /* gets(prod[count].id); */
-  scanf("%s", prod[count].id);
+  getchar();
+  gets(prod[count].id);
+  /* scanf("%s", prod[count].id); */
   if (strcmp(prod[i].id, prod[j].id) == 0)
   {
     printf("ID number is already taken!");
@@ -486,10 +496,10 @@ void editProd()
   printf("EDIT A PRODUCT!");
   printf("\nEnter the id of the product that you want to edit: "); // users input for what data will be change
   fflush(stdin);
-  /* gets(id); */
-  scanf("%s", id);
+  getchar();
+  gets(id);
   test = checkID(id);
-  if (test == 0)
+  if (test == 1)
   {
     printf("The id num %s is not found.", id); // if the data is empty
   }
@@ -519,14 +529,16 @@ void editProd()
 
             printf("Enter new ID: ");
             fflush(stdin);
-            /* gets(prod[i].id); */
-            scanf("%s", prod[i].id);
+            getchar();
+            gets(prod[i].id);
+            
             break;
           case 2:
             printf("Enter new Name: ");
             fflush(stdin);
-            /* gets(prod[i].name); */
-            scanf("%d", prod[i].name);
+            getchar();          
+            gets(prod[i].name);
+            
             break;
           case 3:
             printf("Enter Quantity: ");
@@ -615,10 +627,10 @@ void inv()
     printf("\n 2.) Edit a Product.");
     printf("\n 3.) Delete a Product");
     printf("\n 4.) Display all existing product.");
-    printf("\n 5.) Make a purchase.");
-    printf("\n 6.) Display the product record with highest sale.");
-    printf("\n 7.) Display all product with zero quantity");
-    printf("\n 8.) Exit the program.");
+    /* printf("\n 5.) Make a purchase."); */
+    printf("\n 5.) Display the product record with highest sale.");
+    printf("\n 6.) Display all product with zero quantity");
+    printf("\n 7.) Exit the program.");
     printf("\nChoice--> ");
     scanf("%d", &choice);
     switch (choice)
@@ -635,22 +647,19 @@ void inv()
     case 4: // display the products
       displayprod();
       break;
-    case 5: // make a purchased.
-      purchaseprod();
-      break;
-    case 6:
+    case 5:
       dispHsale(); // to display highest sale.
       break;
-    case 7:
+    case 6:
       disZeroQuant(); // display lowest sale.
       break;
-    case 8:
-      exit(1);
+    case 7:
+      exit(0);
       break;
     default:
       printf("Your choice is wrong please try again");
       break;
     }
-  } while (choice != 8); // infinite loop until the user will choose number8 .
+  } while (choice != 7); // infinite loop until the user will choose number8 .
   printf("Thankyou for using this program");
 }
